@@ -621,7 +621,7 @@ namespace EntityFramework6.Npgsql.Tests
                 CollectionAssert.AreEqual(localChangedIds, remoteChangedIds);
             }
         }
-		
+
 		[Test]
         public void TestScalarValuedStoredFunctions_with_null_StoreFunctionName()
         {
@@ -717,6 +717,28 @@ namespace EntityFramework6.Npgsql.Tests
 
                 Assert.That(administrator.Computed, Is.EqualTo("I administrate"));
                 Assert.That(administrator.HasBlog, Is.True);
+            }
+        }
+
+        [Test]
+        public void TestProjectionWithStringLiteral()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add(new Blog { Name = "_" });
+                context.SaveChanges();
+
+                var name = "test";
+
+                var results = context.Blogs.Select(b => new
+                {
+                    Id = b.BlogId,
+                    Name = name
+                }).ToList();
+
+                Assert.AreEqual(1, results.Count);
             }
         }
     }
